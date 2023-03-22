@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -63,9 +62,7 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-CORS_ORIGIN_WHITELIST = ( 'https://web-production-da72.up.railway.app/',
-                         'http://web-production-da72.up.railway.app/'
-)
+CORS_ORIGIN_WHITELIST = ( "http://127.0.0.1:8000",)
 
 CSRF_TRUSTED_ORIGINS = [
     'https://web-production-da72.up.railway.app/',
@@ -135,8 +132,12 @@ SWAGGER_SETTINGS = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT"),
     }
 }
 
@@ -187,7 +188,7 @@ STATIC_ROOT=os.path.join(BASE_DIR,'static')
 """ STATICFILES_DIRS=[
     os.path.join(BASE_DIR,'static'),
 ] """
-STATICFILES_STORAGE="whitenoise.storage.CompressedManifestStaticFilesStorage"
+#STATICFILES_STORAGE="whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL='/media/'
 
 MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
