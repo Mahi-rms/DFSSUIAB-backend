@@ -65,8 +65,6 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = ( "http://127.0.0.1:8000",)
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://web-production-da72.up.railway.app/',
-    'http://web-production-da72.up.railway.app/'
 ]
 
 CORS_ALLOW_METHODS = (

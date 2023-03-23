@@ -33,7 +33,18 @@ class Registration(APIView):
                 return Response(api_response(ResponseType.FAILED, API_Messages.EMAIL_EXISTS), status=status.HTTP_400_BAD_REQUEST)
             except:
                 user=models.User.objects.create(email=email,password=sha1(password.encode()).hexdigest())
-                return Response(api_response(ResponseType.SUCCESS, API_Messages.SUCCESSFUL_REGISTRATION))
+                auth=AuthenticationHelper(user.id)
+                auth_response = auth.authentication(user,password)
+                if(not auth_response):
+                    return Response(api_response(ResponseType.FAILED, API_Messages.INCORRECT_PASSWORD), status=status.HTTP_400_BAD_REQUEST)
+                
+                access_token = auth.generate_access_token()
+                data = {
+                    'user': user.id,
+                    'email': user.email,
+                    'access_token': access_token
+                    }
+                return Response(api_response(ResponseType.SUCCESS, API_Messages.SUCCESSFUL_REGISTRATION,data))
         except Exception as exception:
             return Response(api_response(ResponseType.FAILED, str(exception)), status=status.HTTP_400_BAD_REQUEST)
 
