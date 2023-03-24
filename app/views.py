@@ -104,11 +104,11 @@ class Uploading(APIView):
     @method_decorator(login_required())
     def post(self,request):
         try:
-            pk_bytes=request.data.get('pk_bytes')
+            public_key=request.data.get('public_key')
             
             myfile = request.FILES['document']
             print(myfile.content_type(),dir(myfile))
-            file=encrypt(pk_bytes,myfile.read())
+            file=encrypt(public_key,myfile.read())
             print("hey")
             res=requests.post("https://demo.storj-ipfs.com/api/v0/add",files={'upload_file':file}).text
             print("4")
