@@ -6,4 +6,5 @@ urlpatterns = [
     path('logout/', views.Logout.as_view()),
     path('key-generation/', views.KeyGeneration.as_view()),
     path('upload/', views.Uploading.as_view()),
+    path('download/', views.Downloading.as_view()),
 ]

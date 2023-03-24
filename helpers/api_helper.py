@@ -11,7 +11,8 @@ class API_Messages():
     PROFILE_UPDATED="Profile Updated Successfully"
     LINK_BROKEN="Link Broken"
     KEYS_GENERATED="Keys Generated Successfully"
-    FILE_UPLOADED="File Encrypted & Sent Successfully "
+    FILE_UPLOADED="File Encrypted & Sent Successfully"
+    FILE_DOWNLOADED="File Downloaded & Decrypted Successfully"
 
 
 def api_response(response_type,api_message,data=None):

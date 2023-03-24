@@ -15,3 +15,9 @@ class TokenBlackList(models.Model):
     created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     updated_at = models.DateTimeField(blank=True, null=True, auto_now=True)
 
+class FileDetails(models.Model):
+    id = models.UUIDField(primary_key=True, db_column="id",default=uuid.uuid4, editable=False)
+    ipfs_data=models.CharField(max_length=200, null=False, unique=True)
+    name = models.CharField(max_length=200, null=False)
+    created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)
+    updated_at = models.DateTimeField(blank=True, null=True, auto_now=True)

@@ -14,13 +14,10 @@ from helpers.auth_helper import login_required
 from helpers.views_helper import *
 from ecies.utils import generate_key
 from ecies import encrypt, decrypt
-import requests,os,json
-import mimetypes,io
-import calendar
-import datetime
+import requests,os,json,mimetypes
 from django.http import JsonResponse
-from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from django.http import HttpResponse
 # Create your views here.
 class Registration(APIView):
     @swagger_auto_schema(request_body=CredentialSerializer)
@@ -75,6 +72,7 @@ class Login(APIView):
             return Response(api_response(ResponseType.FAILED, str(exception)), status=status.HTTP_400_BAD_REQUEST)
 
 class Logout(APIView):
+    @method_decorator(login_required())
     def post(self, request):
         try:
             token = request.headers['Authorization'].split(" ")[-1]
@@ -98,6 +96,7 @@ class KeyGeneration(APIView):
         except Exception as exception:
             return Response(api_response(ResponseType.FAILED, str(exception)), status=status.HTTP_400_BAD_REQUEST)
 
+
 class Uploading(APIView):
     # Sender Encrypts the file with Public Key of Receiver and Uploads it to IPFS and 
     # Sends IPFS hash to Receiver
@@ -105,21 +104,34 @@ class Uploading(APIView):
     def post(self,request):
         try:
             public_key=request.data.get('public_key')
-            
+            file_name=request.data.get('file_name')
             myfile = request.FILES['document']
-            print(myfile.content_type(),dir(myfile))
             file=encrypt(public_key,myfile.read())
-            print("hey")
             res=requests.post("https://demo.storj-ipfs.com/api/v0/add",files={'upload_file':file}).text
-            print("4")
-            
-            res=json.loads(res)
-            print("5")
-            print("6")
+            ipfs_hash=json.loads(res)['Hash']
             data={}
-            data["ipfs_hash"]=res['Hash']
-            print("7")
-
+            data["ipfs_hash"]=ipfs_hash
+            models.FileDetails.objects.create(ipfs_data=sha1(ipfs_hash.encode()).hexdigest(),name=file_name)
             return Response(api_response(ResponseType.SUCCESS, API_Messages.FILE_UPLOADED,data))
+        except Exception as exception:
+            return Response(api_response(ResponseType.FAILED, str(exception)), status=status.HTTP_400_BAD_REQUEST)
+
+
+class Downloading(APIView):
+    #@method_decorator(login_required())
+    def post(self,request):
+        try:
+            private_key=request.data.get('private_key')
+            ipfs_hash=request.data.get('ipfs_hash')
+            file_name=models.FileDetails.objects.get(ipfs_data=sha1(ipfs_hash.encode()).hexdigest()).name
+            #Receiver retrieves the file with IPFS hash and Decryptes it with his Private Key
+            r=requests.get("https://demo.storj-ipfs.com/ipfs/"+ipfs_hash,stream=True, verify=False, 
+                headers={"Accept-Encoding": "identity"})
+            
+            content_type, encoding = mimetypes.guess_type(file_name)
+            data = HttpResponse(decrypt(private_key, r.content), content_type=content_type)
+            data['Content-Disposition'] = f'attachment; filename="{file_name}"'
+            return data
+            #return Response(api_response(ResponseType.SUCCESS, API_Messages.FILE_DOWNLOADED),data)
         except Exception as exception:
             return Response(api_response(ResponseType.FAILED, str(exception)), status=status.HTTP_400_BAD_REQUEST)
