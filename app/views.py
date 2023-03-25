@@ -17,8 +17,11 @@ from ecies import encrypt, decrypt
 import requests,os,json,mimetypes
 from django.http import JsonResponse
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 # Create your views here.
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 class Registration(APIView):
     @swagger_auto_schema(request_body=CredentialSerializer)
     def post(self, request):
@@ -129,9 +132,15 @@ class Downloading(APIView):
                 headers={"Accept-Encoding": "identity"})
             
             content_type, encoding = mimetypes.guess_type(file_name)
-            data = HttpResponse(decrypt(private_key, r.content), content_type=content_type)
-            data['Content-Disposition'] = f'attachment; filename="{file_name}"'
-            return data
+            file=decrypt(private_key, r.content)
+            file_path=os.path.join(BASE_DIR,'media',ipfs_hash+file_name)
+            open(file_path,"wb").write(file)
+
+            with open(file_path, 'rb') as f:
+                data = f.read()   
+            response = HttpResponse(data, content_type=content_type)
+            response['Content-Disposition'] = f'attachment; filename={file_name}'
+            return response
             #return Response(api_response(ResponseType.SUCCESS, API_Messages.FILE_DOWNLOADED),data)
         except Exception as exception:
             return Response(api_response(ResponseType.FAILED, str(exception)), status=status.HTTP_400_BAD_REQUEST)
