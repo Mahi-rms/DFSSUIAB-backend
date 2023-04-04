@@ -137,10 +137,10 @@ class Downloading(APIView):
             open(file_path,"wb").write(file)
 
             with open(file_path, 'rb') as f:
-                data = f.read() """   
+                data = f.read() """
             response = HttpResponse(file, content_type=content_type)
             response['Content-Disposition'] = f'attachment; filename={file_name}'
+            response['file_name']=file_name
             return response
-            #return Response(api_response(ResponseType.SUCCESS, API_Messages.FILE_DOWNLOADED),data)
         except Exception as exception:
             return Response(api_response(ResponseType.FAILED, str(exception)), status=status.HTTP_400_BAD_REQUEST)
