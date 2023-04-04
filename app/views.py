@@ -121,7 +121,7 @@ class Uploading(APIView):
 
 
 class Downloading(APIView):
-    #@method_decorator(login_required())
+    @method_decorator(login_required())
     def post(self,request):
         try:
             private_key=request.data.get('private_key')
@@ -133,13 +133,9 @@ class Downloading(APIView):
             
             content_type, encoding = mimetypes.guess_type(file_name)
             file=decrypt(private_key, r.content)
-            """ file_path=os.path.join(BASE_DIR,'media',ipfs_hash+file_name)
-            open(file_path,"wb").write(file)
-
-            with open(file_path, 'rb') as f:
-                data = f.read() """
-            response = HttpResponse(file, content_type=content_type, file_name=file_name)
-            response['Content-Disposition'] = f'attachment; filename={file_name}'
+            response = HttpResponse(file, content_type=content_type)
+            response['Content-Disposition']=f'attachment; filename={file_name}'
+            response['file_name']=file_name
             return response
         except Exception as exception:
             return Response(api_response(ResponseType.FAILED, str(exception)), status=status.HTTP_400_BAD_REQUEST)

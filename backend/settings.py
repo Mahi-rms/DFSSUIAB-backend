@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 from pathlib import Path
 import os
+from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -87,6 +88,11 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requested-with',
 )
+
+CORS_EXPOSE_HEADERS=list(default_headers) + [
+    'file_name',
+    'Content-Disposition'
+]
 
 ROOT_URLCONF = 'backend.urls'
 
