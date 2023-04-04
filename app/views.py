@@ -133,12 +133,12 @@ class Downloading(APIView):
             
             content_type, encoding = mimetypes.guess_type(file_name)
             file=decrypt(private_key, r.content)
-            file_path=os.path.join(BASE_DIR,'media',ipfs_hash+file_name)
+            """ file_path=os.path.join(BASE_DIR,'media',ipfs_hash+file_name)
             open(file_path,"wb").write(file)
 
             with open(file_path, 'rb') as f:
-                data = f.read()   
-            response = HttpResponse(data, content_type=content_type)
+                data = f.read() """   
+            response = HttpResponse(file, content_type=content_type)
             response['Content-Disposition'] = f'attachment; filename={file_name}'
             return response
             #return Response(api_response(ResponseType.SUCCESS, API_Messages.FILE_DOWNLOADED),data)
