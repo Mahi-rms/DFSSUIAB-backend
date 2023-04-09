@@ -171,7 +171,11 @@ class JwtConstants:
     JWT_ALGORITHM=os.environ.get('JWT_ALGORITHM')
     JWT_EXPIRY_IN_SEC=os.environ.get('JWT_EXPIRY_IN_SEC')
 
-
+class URLConstants: 
+    UPLOAD_URL=os.environ.get("UPLOAD_URL")
+    DOWNLOAD_URL=os.environ.get("DOWNLOAD_URL")
+    WEB3_PROVIDER=os.environ.get("WEB3_PROVIDER")
+    
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 

@@ -16,11 +16,13 @@ from ecies.utils import generate_key
 from ecies import encrypt, decrypt
 import requests,os,json,mimetypes
 from django.http import JsonResponse
-from django.conf import settings
+from backend import settings
 from django.http import HttpResponse, FileResponse
 # Create your views here.
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+url_constants=settings.URLConstants()
 
 class Registration(APIView):
     @swagger_auto_schema(request_body=CredentialSerializer)
@@ -110,7 +112,7 @@ class Uploading(APIView):
             file_name=request.data.get('file_name')
             myfile = request.FILES['document']
             file=encrypt(public_key,myfile.read())
-            res=requests.post("https://demo.storj-ipfs.com/api/v0/add",files={'upload_file':file}).text
+            res=requests.post(url_constants.UPLOAD_URL,files={'upload_file':file}).text
             ipfs_hash=json.loads(res)['Hash']
             data={}
             data["ipfs_hash"]=ipfs_hash
@@ -125,10 +127,11 @@ class Downloading(APIView):
     def post(self,request):
         try:
             private_key=request.data.get('private_key')
-            ipfs_hash=request.data.get('ipfs_hash')
+            tx_hash=request.data.get('tx_hash')
+            ipfs_hash=get_ipfs_hash(tx_hash)
             file_name=models.FileDetails.objects.get(ipfs_data=sha1(ipfs_hash.encode()).hexdigest()).name
             #Receiver retrieves the file with IPFS hash and Decryptes it with his Private Key
-            r=requests.get("https://demo.storj-ipfs.com/ipfs/"+ipfs_hash,stream=True, verify=False, 
+            r=requests.get(url_constants.DOWNLOAD_URL+ipfs_hash,stream=True, verify=False, 
                 headers={"Accept-Encoding": "identity"})
             
             content_type, encoding = mimetypes.guess_type(file_name)
